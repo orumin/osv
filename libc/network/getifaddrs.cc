@@ -309,3 +309,9 @@ getifaddrs(struct ifaddrs **pif)
 	}
 	return (0);
 }
+
+void 
+freeifaddrs(struct ifaddrs *ifp)
+{
+	free(ifp);
+}
