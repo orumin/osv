@@ -376,6 +376,7 @@ libc += network/gethostbyname2_r.o
 libc += network/gethostbyaddr_r.o
 libc += network/getaddrinfo.o
 libc += network/freeaddrinfo.o
+libc += network/getifaddrs.o
 libc += network/getnameinfo.o
 libc += network/__dns.o
 libc += network/__ipparse.o
