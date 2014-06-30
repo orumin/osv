@@ -8,6 +8,7 @@
 #include <osv/run.hh>
 
 #include <osv/debug.hh>
+#include <osv/sched.hh>
 #include <errno.h>
 #include <libgen.h>
 
@@ -79,6 +80,16 @@ std::shared_ptr<elf::object> run(std::string path,
         *return_code = rc;
     }
     return lib;
+}
+
+
+std::shared_ptr<elf::object> run_namespace(std::string path,
+                                 vector<string> args, int* return_code)
+{
+    if (sched::thread::current()->new_program() == nullptr) {
+        return nullptr;
+    }
+    return run(path, args, return_code);
 }
 
 std::shared_ptr<elf::object> run(string path,

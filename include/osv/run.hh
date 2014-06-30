@@ -135,6 +135,21 @@ std::shared_ptr<elf::object> run(std::string path,
                                  std::vector<std::string> args,
                                  int* return_code);
 
+/**
+ * Run the given executable, in a newly created ELF namespace.
+ *
+ * This function behaves exactly like run(), but it will create a new ELF
+ * namespace before running. No libraries previously loaded will be visible,
+ * with the exception of the ones implied by OSv kernel (libc, etc). Libraries
+ * loaded in this new context are not visible to other namespaces. Unlike the
+ * current loaded libraries, the search path is inherited from the parent
+ * namespace.
+ *
+ * New threads inherit the namespace of the parent.
+ */
+std::shared_ptr<elf::object> run_namespace(std::string path,
+                                 std::vector<std::string> args,
+                                 int* return_code);
 /**@}*/
 
 }
