@@ -399,6 +399,7 @@ public:
     object* obj;
 };
 
+constexpr uintptr_t program_base = 0x100000000000UL;
 /**
  * The dynamic linker's view of the running program.
  *
@@ -424,7 +425,7 @@ class program {
 public:
     static const ulong core_module_index;
 
-    explicit program(void* base = reinterpret_cast<void*>(0x100000000000UL));
+    explicit program(void* base = reinterpret_cast<void*>(program_base), program *ref = nullptr);
     /**
      * Load a shared library, and return an interface to it.
      *

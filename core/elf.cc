@@ -888,11 +888,12 @@ void* object::tls_addr()
     return r;
 }
 
-program::program(void* addr)
+program::program(void* addr, program *ref)
     : _next_alloc(addr)
 {
-    assert(!s_program);
-    s_program = this;
+    if (ref) {
+        _search_path = ref->_search_path;
+    }
     _core = make_shared<memory_image>(*this, (void*)ELF_IMAGE_START);
     assert(_core->module_index() == core_module_index);
     _core->load_segments();

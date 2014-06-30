@@ -759,6 +759,33 @@ thread::thread(std::function<void ()> func, attr attr, bool main)
     }
 }
 
+// For simplicity, we will not reuse bits in the bitmap, since no destructor is
+// assigned to the program. In that case, a simple counter would do. But coding
+// this way is easy, and make this future extension simple.
+constexpr int max_namespaces = 32;
+std::bitset<max_namespaces> namespaces(1);
+
+elf::program *thread::new_program()
+{
+    SCOPE_LOCK(thread_map_mutex);
+
+    unsigned long i = 0;
+    for (i = 0; i < max_namespaces; ++i) {
+        if (!namespaces.test(i)) {
+            namespaces.set(i);
+            break;
+        }
+    }
+
+    if (i == max_namespaces) {
+        return nullptr;
+    }
+
+    void *addr = reinterpret_cast<void *>(elf::program_base) + (i << 33);
+    _program.reset(new elf::program(addr, _program.get()));
+    return _program.get();
+}
+
 static std::list<std::function<void (thread *)>> exit_notifiers;
 void thread::register_exit_notifier(std::function<void (thread *)> &&n)
 {

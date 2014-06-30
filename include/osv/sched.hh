@@ -424,6 +424,7 @@ public:
     void detach();
     void set_cleanup(std::function<void ()> cleanup);
     elf::program *program() { return _program.get(); }
+    elf::program *new_program();
 
     /**
      * Return thread's numeric id
