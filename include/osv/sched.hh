@@ -25,6 +25,7 @@
 #include <osv/rcu.hh>
 #include <osv/clock.hh>
 #include <osv/timer-set.hh>
+#include <osv/elf.hh>
 
 typedef float runtime_t;
 
@@ -366,6 +367,8 @@ private:
     enum class detach_state { attached, detached, attached_complete };
     std::atomic<detach_state> _detach_state = { detach_state::attached };
 
+    std::shared_ptr<elf::program> _program;
+
 public:
     explicit thread(std::function<void ()> func, attr attributes = attr(),
             bool main = false);
@@ -420,6 +423,8 @@ public:
     void join();
     void detach();
     void set_cleanup(std::function<void ()> cleanup);
+    elf::program *program() { return _program.get(); }
+
     /**
      * Return thread's numeric id
      *

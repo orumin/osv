@@ -722,6 +722,9 @@ thread::thread(std::function<void ()> func, attr attr, bool main)
     // do that for us instead)
     if (!main && sched::s_current) {
         remote_thread_local_var(s_current) = this;
+        WITH_LOCK(thread_map_mutex) {
+            _program = current()->_program;
+        }
     }
     init_stack();
 
@@ -740,6 +743,11 @@ thread::thread(std::function<void ()> func, attr attr, bool main)
             s_current = this;
         }
         remote_thread_local_var(current_cpu) = _detached_state->_cpu;
+        if (attr._pinned_cpu->id == 0) {
+            _program = std::shared_ptr<elf::program>(new elf::program());
+        } else {
+            _program = current()->_program;
+        }
     }
 
     // For debugging purposes, it is useful for threads to have names. If no
@@ -1283,6 +1291,7 @@ void start_early_threads()
                 continue;
             }
             t->remote_thread_local_var(s_current) = t;
+            t->_program = sched::thread::current()->_program;
             thread::status expected = thread::status::prestarted;
             if (t->_detached_state->st.compare_exchange_strong(expected,
                 thread::status::unstarted, std::memory_order_relaxed)) {

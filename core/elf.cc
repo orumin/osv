@@ -888,8 +888,6 @@ void* object::tls_addr()
     return r;
 }
 
-program* s_program;
-
 program::program(void* addr)
     : _next_alloc(addr)
 {
@@ -1154,7 +1152,8 @@ dladdr_info program::lookup_addr(const void* addr)
 
 program* get_program()
 {
-    return s_program;
+    auto thread = sched::thread::current();
+    return thread->program();
 }
 
 const Elf64_Sym *init_dyn_tabs::lookup(u32 sym)
@@ -1372,5 +1371,5 @@ void* __tls_get_addr(module_and_offset* mao)
     abort();
 #endif /* AARCH64_PORT_STUB */
 
-    return s_program->tls_addr(mao->module) + mao->offset;
+    return get_program()->tls_addr(mao->module) + mao->offset;
 }
