@@ -108,3 +108,27 @@ std::shared_ptr<elf::object> run(string path,
 }
 
 }
+
+struct run_namespace1_args {
+    std::string path;
+    std::vector<std::string> args;
+    int *return_code;
+};
+
+void *do_run_namespace1(void *_rnargs)
+{
+    auto rnargs = static_cast<struct run_namespace1_args *>(_rnargs);
+    osv::run_namespace(rnargs->path, rnargs->args, rnargs->return_code);
+    return nullptr;
+}
+
+extern "C" void run_namespace1(char *path, char **args, int argv, int *return_code)
+{
+    pthread_t pthread;
+    void* retval;
+    struct run_namespace1_args rnargs = { std::string(path), std::vector<std::string>(argv), return_code};
+
+    pthread_create(&pthread, nullptr, do_run_namespace1, reinterpret_cast<void *>(&rnargs));
+    pthread_join(pthread, &retval);
+}
+
